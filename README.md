@@ -2,7 +2,7 @@
 The repository provides a list of functions to compute the domain shift KPIs introduced in D4.1 of the project.
 
 ## The list of KPIs
-- [x]  KPI-DF-052 [Domain shift adaptation time](kpis/adapation_time/README.md)
+- [x]  KPI-DF-052 [Domain shift adaptation time](domain_shift_kpis/adapation_time/README.md)
 
 - [ ] KPI-DF-053 Domain shift generalization gap 
 - [ ] KPI-DF-054 Domain shift out of domain detection accuracy
