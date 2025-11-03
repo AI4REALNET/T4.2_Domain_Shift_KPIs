@@ -3,7 +3,9 @@ from typing import Optional
 from stable_baselines3 import PPO
 from stable_baselines3.ppo import MlpPolicy
 from stable_baselines3.common.evaluation import evaluate_policy
-from stable_baselines3.common.callbacks import CheckpointCallback, EvalCallback, CallbackList
+from stable_baselines3.common.callbacks import CheckpointCallback, EvalCallback 
+from stable_baselines3.common.callbacks import StopTrainingOnRewardThreshold, StopTrainingOnNoModelImprovement
+from stable_baselines3.common.callbacks import CallbackList
 
 from grid2op.Reward import LinesCapacityReward
 from grid2op.gym_compat import GymEnv
@@ -50,40 +52,55 @@ class MyAgent(SB3Agent, BaseAgent):
     
     def train(self, 
               env_gym_eval: GymEnv, 
-              total_time_steps: int=1000,
+              total_timesteps: int=1000,
+              min_reward_threshold: Optional[float]=None,
+              load_path: Optional[str]=None,
               save_path: Optional[str]=None,
               save_freq: int=2000,
               eval_freq: int=1000):
         
-        if save_path is not None:
-            my_path = os.path.join(save_path, self.name)
-        else:
-            my_path = os.path.join("logs", self.name)
+        if load_path is not None:
+            fine_tune = True
+            self.nn_model = PPO.load(path=load_path,
+                                     custom_objects={"observation_space" : env_gym_eval.observation_space,
+                                                     "action_space": env_gym_eval.action_space})
+            self.nn_model.set_env(env_gym_eval)
+            
+        if save_path is None:
+            save_path = os.path.join("logs", self.name)
         
         callbacks = []
         callbacks.append(CheckpointCallback(save_freq=save_freq,
-                                            save_path=my_path,
+                                            save_path=save_path,
                                             name_prefix=self.name))
         
         # TODO: add a child callback to stop training when a threshold reached (see callbacks )
         if env_gym_eval is not None:
+            if min_reward_threshold is None:
+                raise ValueError("min_reward_threshold could not be None if you provide an environment of evaluation")
+            
             callbacks.append(EvalCallback(eval_env=env_gym_eval,
-                                        best_model_save_path=my_path,
-                                        log_path=my_path,
-                                        eval_freq=eval_freq,
-                                        deterministic=True,
-                                        render=False,
-                                        verbose=True,
-                                        n_eval_episodes=8
-                                        ))
+                                          best_model_save_path=save_path,
+                                          log_path=save_path,
+                                          eval_freq=eval_freq,
+                                          deterministic=True,
+                                          render=False,
+                                          verbose=True,
+                                          n_eval_episodes=8,
+                                          callback_after_eval=StopTrainingOnRewardThreshold(min_reward_threshold)
+                                         ))
             
         # Train the model
-        self.nn_model.learn(total_time_steps=total_time_steps,
+        self.nn_model.learn(total_timesteps=total_timesteps,
                             progress_bar=True,
                             callback=CallbackList(callbacks))
         
         # save the model
-        agent.nn_model.save(os.path.join(my_path, name))
+        self.nn_model.save(os.path.join(save_path, self.name))
+        
+        # TODO: it should return two values, the daptation time and status
+        # TODO : these two should be changed by reading the evaluations.npz file first
+        return total_timesteps, True
     
     def evaluate(self, env, n_eval_episodes=10):
         mean_reward, std_reward = evaluate_policy(self.nn_model, 
