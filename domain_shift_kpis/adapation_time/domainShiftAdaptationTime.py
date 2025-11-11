@@ -36,11 +36,10 @@ class DsAdaptationTime(DomainShiftBaseClass):
                  agent: BaseAgent,
                  trained_model_path: str, 
                  env: Env, 
-                 env_shift: Env,
-                 acceptance_threshold: float):
+                 env_shift: Env):
         super().__init__(agent, env)
         self.env_shift = env_shift
-        self.acceptance_threshold =acceptance_threshold
+        self.acceptance_threshold = None
         
         self.trained_model_path = trained_model_path
         if trained_model_path is not None:
@@ -51,7 +50,8 @@ class DsAdaptationTime(DomainShiftBaseClass):
         self.perf_drop = False
         self.adaptation_time = 0
         
-    def compute(self, n_eval_episodes=10, **train_kwargs):
+    def compute(self, acceptance_threshold: float=200., n_eval_episodes=10, **train_kwargs):
+        self.acceptance_threshold = acceptance_threshold
         mean_reward, std_reward = self.agent.evaluate(self.env, n_eval_episodes)
         mean_reward_shift, std_reward_shift = self.agent.evaluate(self.env_shift, n_eval_episodes)
         mean_drop = abs(np.mean(mean_reward) - np.mean(mean_reward_shift))
@@ -67,6 +67,7 @@ class DsAdaptationTime(DomainShiftBaseClass):
             min_reward_threshold = np.mean(mean_reward) - self.acceptance_threshold
             self.adaptation_time, status = self.agent.train(env_gym_eval=self.env_shift, 
                                                             min_reward_threshold=min_reward_threshold, 
+                                                            n_eval_episodes=n_eval_episodes,
                                                             **train_kwargs)
             if not status:
                 logger.warning(f"The agent could not adapt its policy to the domain shift after {self.adaptation_time} steps.")
@@ -108,16 +109,17 @@ if __name__ == "__main__":
     ds_kpi = DsAdaptationTime(agent=agent, 
                               trained_model_path=model_path, 
                               env=env_gym, 
-                              env_shift=env_gym_shift,
-                              acceptance_threshold=150)
+                              env_shift=env_gym_shift
+                             )
     
     save_path = os.path.join(here, "..", "trained_models", "PPO_SB3_FINETUNE")
     train_kwargs = {
-        "total_timesteps": 4000,
+        "total_timesteps": 1e5,
         "load_path": model_path,
         "save_path": save_path,
-        "save_freq": 2000,
+        "save_freq": 5000,
         "eval_freq": 1000
     }
-    adaptation_time = ds_kpi.compute(n_eval_episodes=10, **train_kwargs)
+    
+    adaptation_time = ds_kpi.compute(acceptance_threshold=200, n_eval_episodes=10, **train_kwargs)
     
