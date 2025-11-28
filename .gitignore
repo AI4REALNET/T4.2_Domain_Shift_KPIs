@@ -209,3 +209,4 @@ __marimo__/
 model_logs
 .vscode
 trained_models
+*.bkp
