@@ -6,7 +6,7 @@ here = pathlib.Path(__file__).parent.resolve()
 
 __all__ = ["DomainShiftBaseClass"]
 
-from domain_shift_kpis.base_class import DomainShiftBaseClass
+from domain_shift_kpis.kpi_base_class import DomainShiftBaseClass
 
 def get_version(rel_path="__init__.py"):
     init_content = (here / rel_path).read_text(encoding='utf-8')
