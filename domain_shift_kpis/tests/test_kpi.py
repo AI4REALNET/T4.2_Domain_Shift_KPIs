@@ -76,9 +76,9 @@ def test_ds_adaptation_time_flow():
                              agent_eval_kwargs=eval_kwargs,
                              min_train_steps=int(1e3)
                              )
-    return results
+    print(results)
+    assert isinstance(results, dict)
 
 
 if __name__ == "__main__":
-    results = test_ds_adaptation_time()
-    print(results)
+    test_ds_adaptation_time_flow()
