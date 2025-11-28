@@ -13,7 +13,7 @@ from stable_baselines3.ppo import MlpPolicy
 
 from l2rpn_baselines.PPO_SB3.utils import remove_non_usable_attr
 
-from domain_shift_kpis.agents.power_grids import MyAgent
+from domain_shift_kpis.agents.power_grids import CustomAgent
 
 def make_gymenv(env: Environment, 
                 obs_attr_to_keep=["rho"], 
@@ -139,11 +139,11 @@ def make_agent(name, env, env_gym):
             "device": "auto"
     }
         
-    agent = MyAgent(name=name,
-                    g2op_action_space=env.action_space,
-                    gym_act_space=env_gym.action_space,
-                    gym_obs_space=env_gym.observation_space,
-                    nn_kwargs=nn_kwargs
-                    )
+    agent = CustomAgent(name=name,
+                        g2op_action_space=env.action_space,
+                        gym_act_space=env_gym.action_space,
+                        gym_obs_space=env_gym.observation_space,
+                        nn_kwargs=nn_kwargs
+                        )
     
     return agent

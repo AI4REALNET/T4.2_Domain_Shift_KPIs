@@ -12,11 +12,9 @@ class BaseAgent(ABC):
     def load(self, path: Union[str, Path]):
         pass
     
-    @abstractmethod
     def train(self, **kwargs):
         pass
     
-    @abstractmethod
     def evaluate(self, **kwargs):
         pass
     
