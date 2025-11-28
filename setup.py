@@ -14,7 +14,6 @@ pkgs = {
     "required": [
         "numpy",
         "gymnasium",
-        "l2rpn_baselines"
     ],
     "extras": {
         "powergrid": [
@@ -29,7 +28,11 @@ pkgs = {
             "tensorflow==2.8.1",
             "torch==2.0.1",
             "imageio==2.34.0",
-            "plotly==5.20.0"
+            "plotly==5.20.0",
+            "tensorboard",
+            "l2rpn_baselines",
+            "stable-baselines3",
+            "stable-baselines3[extra]",
         ],
         "railway": [
             "Flatland"
@@ -37,8 +40,20 @@ pkgs = {
         "atm": [
             "BlueSky"  
         ],
+        "test": [
+            "pytest",
+            "pytest-cov",
+            "pytest-html",
+            "pytest-metadata",
+            "ipykernel",
+            "pylint",
+            "pylint-exit",
+            "jupytext"
+        ]
     }
 }
+
+pkgs["extras"]["test"] += pkgs["required"]
 
 with open("README.md", "r", encoding="utf-8") as fh:
     long_description = fh.read()
