@@ -20,6 +20,8 @@ def plot_history(history_path: str, save_path: Optional[str] = None):
     plt.plot(np.arange(nb_iter), mean_reward_shift, "orange", label="mean_reward_shift")
     plt.fill_between(np.arange(nb_iter), mean_reward_shift - std_reward_shift, mean_reward_shift + std_reward_shift, label="std_reward_shift", alpha=0.2, facecolor="orange")
     plt.plot(np.arange(nb_iter), history["performance_drop"], "black", label="performance_drop")
+    plt.xlabel("Training steps")
+    plt.ylabel("Reward")
     plt.grid()
     plt.legend()
     plt.show()
