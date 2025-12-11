@@ -12,26 +12,27 @@ def get_data_files(directory):
 
 pkgs = {
     "required": [
-        "numpy",
-        "gymnasium",
+        "numpy==2.2.6",
+        "gymnasium==1.2.1",
     ],
     "extras": {
         "powergrid": [
-            "grid2op==1.9.8",
+            "grid2op==1.12.1",
             "pybind11==2.8.1",
-            "lightsim2grid==0.8.1",
-            "leap-net==0.0.5",
-            "protobuf==3.20.2",
-            "pandapower==2.11.0",
-            "pandas==1.5.3",
+            "lightsim2grid==0.10.3",
+            "numba==0.62.1",
+            "protobuf==6.33.0",
+            "pandapower==3.2.0",
+            "pandas==2.3.3",
             "jupyter",
+            "lxml==6.0.2",
             "tensorflow==2.8.1",
             "torch==2.0.1",
             "imageio==2.34.0",
             "plotly==5.20.0",
-            "tensorboard",
-            "l2rpn_baselines",
-            "stable-baselines3",
+            "tensorboard==2.20.0",
+            "l2rpn_baselines==0.8.0",
+            "stable-baselines3==2.7.0",
             "stable-baselines3[extra]",
         ],
         "railway": [
@@ -49,6 +50,21 @@ pkgs = {
             "pylint",
             "pylint-exit",
             "jupytext"
+        ],
+        "docker": [
+            "grid2op==1.12.1",
+            "pybind11==2.8.1",
+            "lightsim2grid==0.10.3",
+            "numba==0.62.1",
+            "protobuf==6.33.0",
+            "pandapower==3.2.0",
+            "pandas==2.3.3",
+            "jupyter",
+            "lxml==6.0.2",
+            "tensorboard==2.20.0",
+            "l2rpn_baselines==0.8.0",
+            "stable-baselines3==2.7.0",
+            "stable-baselines3[extra]",
         ]
     }
 }
