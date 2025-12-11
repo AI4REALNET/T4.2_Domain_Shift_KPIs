@@ -1,0 +1,15 @@
+{
+    "mean_reward": 129.46438869833946,
+    "performance_drop": [
+        74.91342557668686
+    ],
+    "shift": {
+        "mean_reward": [
+            54.5509631216526
+        ],
+        "std_reward": [
+            113.2
+        ]
+    },
+    "std_reward": 231.4
+}
