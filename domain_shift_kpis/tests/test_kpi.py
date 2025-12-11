@@ -1,6 +1,6 @@
 from pathlib import Path
 from domain_shift_kpis.agents.base_agent import BaseAgent
-from domain_shift_kpis.adapation_time import DsAdaptationTime
+from domain_shift_kpis.adaptation_time import DsAdaptationTime
 
 class Counter():
     def __init__(self):

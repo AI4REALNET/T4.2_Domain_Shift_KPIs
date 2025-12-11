@@ -7,7 +7,7 @@ import numpy as np
 from gymnasium import Env
 from domain_shift_kpis.kpi_base_class import DomainShiftBaseClass
 from domain_shift_kpis.agents import BaseAgent
-from domain_shift_kpis.adapation_time.utils import NpEncoder
+from domain_shift_kpis.adaptation_time.utils import NpEncoder
 
 logging.basicConfig(level=logging.INFO, filename="kpi_logs.log", filemode="w")
 logger = logging.getLogger(__name__)
