@@ -8,8 +8,10 @@ from domain_shift_kpis.adaptation_time import DsAdaptationTime
 # Agent based imports
 from grid2op.Reward import LinesCapacityReward
 from domain_shift_kpis import here
-from domain_shift_kpis.agents.power_grids.utils import create_env, create_env_op, make_agent
-from domain_shift_kpis.agents.power_grids.custom_agent import train, evaluate
+from domain_shift_kpis.agents.power_grids.utils import create_env, create_env_op
+
+from submission.my_agent import make_agent
+from submission.my_agent import train, evaluate
 
 
 def prepare_env(env_name):
@@ -34,7 +36,7 @@ def prepare_env(env_name):
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
-    parser.add_argument("--env_name", help="A grid2op environemnt", default="l2rpn_case14_sandbox")
+    # parser.add_argument("--env_name", help="A grid2op environemnt", default="l2rpn_case14_sandbox")
     # parser.add_argument("--model_name", help="the name of the model", type=str, default="PPO_SB3")
     # parser.add_argument("--model_path", help="path to the trained models", type=str, default=os.path.join("trained_models", "PPO_SB3", "PPO_SB3.zip"))
     # parser.add_argument("--save_path", help="path where the model should be saved", type=str, default=os.path.join("trained_models", "PPO_SB3_FINETUNE"))
@@ -46,7 +48,7 @@ if __name__ == "__main__":
     args = parser.parse_args()
     config = configparser.ConfigParser()
 
-    env_name = args.env_name
+    # env_name = args.env_name
     # model_name = args.model_name
     # model_path = args.model_path
     # save_path = args.save_path
@@ -61,6 +63,7 @@ if __name__ == "__main__":
     train_kwargs = eval(config.get(section="DEFAULT", option="train_kwargs"))
     eval_kwargs = eval(config.get(section="DEFAULT", option="eval_kwargs"))
     
+    env_name = kpi_kwargs.get("env_name")
     model_name = train_kwargs.get("model_name")
     model_path = train_kwargs.get("load_path")
     min_train_steps = train_kwargs.get("train_steps")
@@ -75,8 +78,6 @@ if __name__ == "__main__":
     print(f"model_path: {model_path}")
     print(f"save_path: {save_path}")
     print(f"config_path: {config_path}")
-    
-    
     
     env, env_gym, env_gym_shift = prepare_env(env_name)
     

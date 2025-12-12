@@ -5,6 +5,6 @@ WORKDIR /usr/src
 COPY . .
 
 RUN pip install --upgrade pip
-RUN pip install --no-cache-dir -U ".[powergrid]"
+RUN pip install --no-cache-dir -U ".[docker]"
 
 CMD ["python", "main.py", "--config_path", "./config.ini"]
