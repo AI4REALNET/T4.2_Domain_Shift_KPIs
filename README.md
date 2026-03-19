@@ -38,7 +38,7 @@ pip3 install -e ".[<use_case>]"
 ```
 
 The `<use_case>` could be one of the the following:
-- `power_grids`: Already implemented. Provides the dependencies for power grid digital environment (grid2Op).
+- `powergrid`: Already implemented. Provides the dependencies for power grid digital environment (grid2Op).
 - `railway`: TO BE IMPLEMENTED. It will provide the dependencies for railway digital environment (flatland)
 - `atm`: TO BE IMPLEMENTED. It will provide the dependencies for air traffic management digital environment (BlueSky).
 
