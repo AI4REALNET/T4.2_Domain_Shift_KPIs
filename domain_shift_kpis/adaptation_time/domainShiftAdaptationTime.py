@@ -38,9 +38,9 @@ class DsAdaptationTime(DomainShiftBaseClass):
     """
     def __init__(self, 
                  agent: BaseAgent,
-                 trained_model_path: str, 
                  env: Env, 
-                 env_shift: Env):
+                 env_shift: Env,
+                 trained_model_path: Optional[str]=None):
         super().__init__(agent, env)
         self.env_shift = env_shift
         # self.acceptance_threshold = None
@@ -49,7 +49,8 @@ class DsAdaptationTime(DomainShiftBaseClass):
         if trained_model_path is not None:
             agent.load(trained_model_path)
         else:
-            logger.warning("You tried to use an untrained model! To compute the KPI, you should provide a trained model.")
+            # logger.warning("You tried to use an untrained model! To compute the KPI, you should provide a trained model.")
+            logger.warning("We suppose that your agent is already loaded!")
         
         self.history = DsAdaptationTime.init_history({})
         
