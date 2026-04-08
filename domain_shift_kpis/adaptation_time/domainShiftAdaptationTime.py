@@ -4,6 +4,7 @@ import json
 from typing import Callable, Optional
 import logging
 import numpy as np
+from grid2op.Environment import Environment
 from gymnasium import Env
 from domain_shift_kpis.kpi_base_class import DomainShiftBaseClass
 from domain_shift_kpis.agents import BaseAgent
@@ -38,11 +39,14 @@ class DsAdaptationTime(DomainShiftBaseClass):
     """
     def __init__(self, 
                  agent: BaseAgent,
-                 env: Env, 
-                 env_shift: Env,
+                 env: Environment,
+                 env_shift: Environment,
+                 env_gym: Environment, 
+                 env_gym_shift: Env,
                  trained_model_path: Optional[str]=None):
-        super().__init__(agent, env)
-        self.env_shift = env_shift
+        super().__init__(agent, env, env_shift)
+        self.env_gym = env_gym
+        self.env_gym_shift = env_gym_shift
         # self.acceptance_threshold = None
         
         self.trained_model_path = trained_model_path
@@ -105,10 +109,10 @@ class DsAdaptationTime(DomainShiftBaseClass):
             min_train_steps = agent_train_kwargs.get("train_steps", int(1e3))
                     
         adaptation_time = 0
-        mean_reward, std_reward = agent_eval_fun(self.agent, self.env, **agent_eval_kwargs)
+        mean_reward, std_reward = agent_eval_fun(self.agent, self.env, type="normal", **agent_eval_kwargs)
         self.history["mean_reward"] = mean_reward
         self.history["std_reward"] = std_reward
-        mean_reward_shift, std_reward_shift = agent_eval_fun(self.agent, self.env_shift, **agent_eval_kwargs)
+        mean_reward_shift, std_reward_shift = agent_eval_fun(self.agent, self.env_shift, type="shift", **agent_eval_kwargs)
         self.history["shift"]["mean_reward"].append(mean_reward_shift)
         self.history["shift"]["std_reward"].append(std_reward_shift)
         
@@ -123,9 +127,9 @@ class DsAdaptationTime(DomainShiftBaseClass):
         # Do while the performance gap is greater than the threshold or maximum steps are reached
         while not(status) and (fine_tune_budget > adaptation_time):
             # Fine-tune the agent on the shifted environment
-            self.agent = agent_train_fun(self.agent, self.env_shift, **agent_train_kwargs)
+            self.agent = agent_train_fun(self.agent, self.env_gym_shift, **agent_train_kwargs)                
             # evaluate the fine-tuned agent on the shifted domain
-            mean_reward_shift, std_reward_shift = agent_eval_fun(self.agent, self.env_shift, **agent_eval_kwargs)
+            mean_reward_shift, std_reward_shift = agent_eval_fun(self.agent, self.env_shift, type="shift", **agent_eval_kwargs)
             self.history["shift"]["mean_reward"].append(mean_reward_shift)
             self.history["shift"]["std_reward"].append(std_reward_shift)
             # recompute the drop
@@ -163,13 +167,15 @@ class DsAdaptationTime(DomainShiftBaseClass):
         return history
         
 
-def run_KPI(env, env_gym, env_gym_shift, agent, model_path, here):
+def run_KPI(env, env_shift, env_gym, env_gym_shift, agent, model_path, here):
     from domain_shift_kpis.agents.power_grids.custom_agent import train, evaluate
     
     ds_kpi = DsAdaptationTime(agent=agent, 
-                              trained_model_path=model_path, 
-                              env=env_gym, 
-                              env_shift=env_gym_shift
+                              env=env,
+                              env_shift=env_shift,
+                              env_gym=env_gym, 
+                              env_gym_shift=env_gym_shift,
+                              trained_model_path=model_path                              
                              )
     save_path = os.path.join(here, "..", "trained_models", "PPO_SB3_FINETUNE")
     
@@ -224,6 +230,6 @@ if __name__ == "__main__":
     agent = make_agent(name="PPO_SB3", env=env, env_gym=env_gym)
     model_path = os.path.join(here, "..", "trained_models", "PPO_SB3", "PPO_SB3.zip")
     
-    results = run_KPI(env, env_gym, env_gym_shift, agent, model_path, here)
+    results = run_KPI(env, env_shift, env_gym, env_gym_shift, agent, model_path, here)
     print(results)
     
