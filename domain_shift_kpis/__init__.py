@@ -1,6 +1,9 @@
+import os
 import pathlib 
 
 __version__ = "0.0.1"
+
+ASSETS = os.path.join(os.path.dirname(__file__), "assets")
 
 here = pathlib.Path(__file__).parent.resolve()
 
