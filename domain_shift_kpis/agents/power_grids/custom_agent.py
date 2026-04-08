@@ -1,6 +1,7 @@
 import os
 from typing import Optional
 import numpy as np
+import torch
 
 from stable_baselines3 import PPO
 from stable_baselines3.ppo import MlpPolicy
@@ -9,6 +10,8 @@ from stable_baselines3.common.callbacks import CheckpointCallback, EvalCallback
 from stable_baselines3.common.callbacks import StopTrainingOnRewardThreshold, StopTrainingOnNoModelImprovement
 from stable_baselines3.common.callbacks import CallbackList
 
+from grid2op.Observation import BaseObservation
+from grid2op.Action import BaseAction
 from grid2op.Reward import LinesCapacityReward
 from grid2op.gym_compat import GymEnv
 from l2rpn_baselines.PPO_SB3.utils import SB3Agent
@@ -26,7 +29,8 @@ class CustomAgent(SB3Agent, BaseAgent):
                  nn_kwargs=None,
                  custom_load_dict=None,
                  gymenv=None,
-                 iter_num=None):
+                 iter_num=None,
+                 device="cpu"):
         if name is None:
             name = "PPO_SB3"
 
@@ -36,10 +40,10 @@ class CustomAgent(SB3Agent, BaseAgent):
         BaseAgent.__init__(self, name)
         
         self._loaded = False
+        self.device = device
         if nn_path is not None:
             self.load(path=nn_path)
-            self._loaded = True
-        
+            self._loaded = True        
         
     def load(self, path: Optional[str]=None):
         if path is None:
@@ -51,6 +55,24 @@ class CustomAgent(SB3Agent, BaseAgent):
         super().load()
         
         self._loaded = True
+        
+    def act(self,
+            observation: BaseObservation,
+            reward: float,
+            done: bool=False,
+            top_k: int=1)-> BaseAction:
+        gym_obs = self.gymenv.observation_space.to_gym(observation)
+        input = torch.from_numpy(gym_obs).reshape((1, len(gym_obs))).to(self.device)
+        distribution = self.nn_model.policy.get_distribution(input)
+        logits = distribution.distribution.logits
+        act_id = torch.topk(logits, k=top_k)[1].cpu().numpy()[0]
+        action = self.gymenv.action_space.from_gym(act_id[0])
+        
+        # simulate the action and see the impact
+        _obs, _rew, _done, _info = observation.simulate(action, time_step=1)
+        if _obs.rho.max() > 0.9 or (len(_info["exception"]) != 0):
+            action = self.action_space({})
+        return action
         
 def train(agent, env, **kwargs):
     load_path = kwargs.get("load_path", None)
