@@ -111,7 +111,7 @@ def train(agent, env, **kwargs):
     
     return agent
 
-def evaluate(agent, env, **kwargs):
+def evaluate(agent, env, type, **kwargs):
     mean_reward, std_reward = evaluate_policy(agent.nn_model, 
                                               env, 
                                               **kwargs)
